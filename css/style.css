@@ -127,6 +127,10 @@ button:hover {
 	margin-right: .85em;
 }
 
+.disabled {
+	color: grey;
+}
+
 .interests input {
 	margin-bottom: 0;
 }

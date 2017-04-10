@@ -1,66 +1,86 @@
 const $name = $('#name');
 const $title = $('#title');
 const $tshirtDesign = $('#design');
-// const $colorDiv = $('#colors-js-puns');
-// const $colors = $('#color');
+const $colorOptions = $('#color option');
 
 //Focus on Name
 $name.focus();
 
 //Reveal Other Title input field
-$('#other-title').remove();
-$title.on('click', (e) => {
-    const $basicInfo = $('fieldset').first();
-    const $otherTitle = $('<input type="text" id="other-title" name="user_name" placeholder="Your Job Role">');
-    if(e.target.value === 'other' && $('#other-title').length === 0) {
-        $basicInfo.append($otherTitle);  
+$('#other-title').hide();
+$title.on('change', (e) => {
+    if(e.target.value === 'other') {
+        $('#other-title').show();  
         $('#other-title').focus();
     } else if(e.target.value != 'other') {
-        $('#other-title').remove();
+        $('#other-title').hide();
     }
 });
 
 //Hide Color section in T-Shirt Info 
-$('#colors-js-puns').remove();
 
-$tshirtDesign.on('click', (e) => {
-    const jsPuns = '<div id="colors-js-puns" class="">' 
-                    + '<label for="color">Color:</label>'
-                    + '<select id="color">'
-                    + '<option value="cornflowerblue">Cornflower Blue (JS Puns shirt only)</option>'
-                    + '<option value="darkslategrey">Dark Slate Grey (JS Puns shirt only)</option>'
-                    + '<option value="gold">Gold (JS Puns shirt only)</option>' 
-                    + '</select>'
-                    + '</div>';
+$('#colors-js-puns').hide();
 
-    const jsShirt = '<div id="colors-js-puns" class="">' 
-                    + '<label for="color">Color:</label>'
-                    + '<select id="color">'
-                    + '<option value="tomato">Tomato (I &#9829; JS shirt only)</option>'
-                    + '<option value="steelblue">Steel Blue (I &#9829; JS shirt only)</option>'
-                    + '<option value="dimgrey">Dim Grey (I &#9829; JS shirt only)</option> ' 
-                    + '</select>'
-                    + '</div>';
-
-    if(e.target.value === 'js puns') {
-        $('#colors-js-puns').remove();
-        $('.shirt').append(jsPuns);
+$tshirtDesign.on('change', (e) => {
+    $('#colors-js-puns').show();
+    $('#color option').remove();
+    if(e.target.value === 'js puns') {        
+        $('#color').append($colorOptions.slice(0, 3));
     } else if (e.target.value === 'heart js') {
-        $('#colors-js-puns').remove();
-        $('.shirt').append(jsShirt);
-    } else if(e.target.value != 'js puns' && e.target.value != 'heart js') {
-        $('#colors-js-puns').remove();
+        $('#color').append($colorOptions.slice(3, 7));
+    } else {
+        $('#colors-js-puns').hide();
     }
 });
 
+
 //Activites
-let $total = $('<p>Total:</p>')
-$('.activities').append($total);
+const $labels = $('.activities label');
+const $total = $('<p id="total">Total: $<span id="cost"></span></p>')
+let cost = 0;
+
+for(let i = 0; i < $labels.length; i++) {
+    const label = $labels[i];
+    label.addEventListener('change', (e) => {  
+        const isChecked = e.target.checked; 
+        const str = $labels[i].textContent;
+
+        const schedule = str.split("—")[1].split(",")[0];
+        const price = str.split("$")[1];
+
+        // const arr = str.split(" ");
+        // let price = arr.pop();
+        // price = price.slice( 1 );
+        // const time = arr.pop();
+        // const day = arr.pop();
+        // const schedule = day.concat(' ' + time);
+
+        // console.log(str);
+        // console.log(arr);
+        // console.log(price);
+        // console.log(schedule);
+
+        let $result = $('.activities label:contains("' + schedule + '")');        
+              
+        if(isChecked) {
+            cost += parseInt(price); 
+            $('.activities').append($total);
+            $result.children("input:not(:checked)").prop("disabled", true).parent().addClass('disabled');
+        } else {
+            cost -= parseInt(price);
+            $result.children("input:not(:checked)").prop("disabled", false).parent().removeClass('disabled');
+            if(cost === 0) {
+                $total.remove();
+            } 
+        }
+        $('#cost').text(cost);       
+    });
+}
 
 //Payment Info
 $('#credit-card, #paypal, #bitcoin').hide();
 
-$('#payment').on('click', (e) => {
+$('#payment').on('change', (e) => {
     if(e.target.value === 'credit card') {
         $('#paypal, #bitcoin').hide();
         $('#credit-card').show();
