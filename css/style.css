@@ -64,6 +64,12 @@ legend {
 	margin-bottom: 1.125em;
 }
 
+#legend {
+	padding-top: .5em;
+	border-top: 2px solid #679cb3;
+	margin-bottom: 1.125em;
+}
+
 input[type="text"],
 input[type="email"],
 legend {
@@ -79,6 +85,10 @@ label {
 input,
 select {
 	margin-bottom: 1.125em;	
+	border-radius: 10px;
+	padding: 10px;
+	background: #679cb3;
+	outline: none;
 }
 
 input {
@@ -107,10 +117,16 @@ button {
 	background: #22627e;
 	margin: 1.25em 0 .5em;
 	cursor: pointer;
+	border-radius: 10px;
+	outline: none;
 }
 
 button:hover {
 	background: #184c62;
+}
+
+h3 {
+	margin-top: 0;
 }
 
 /* ================================= 
@@ -137,6 +153,10 @@ button:hover {
 
 .credit-card {
 	margin-top: 1.25em;
+}
+
+.error {
+	color: darkred;
 }
 
 /* ================================= 
@@ -183,3 +203,4 @@ button:hover {
 		width: 49%;
 	}
 }
+
