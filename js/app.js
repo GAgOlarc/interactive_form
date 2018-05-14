@@ -1,7 +1,15 @@
+"use strict";
+
 const $name = $('#name');
 const $title = $('#title');
 const $tshirtDesign = $('#design');
 const $colorOptions = $('#color option');
+const $mail = $('#mail');
+const $checkbox = $('.activities input:checkbox');
+const $select = $('#payment');
+const $ccNum = $('#cc-num');
+const $zip = $('#zip');
+const $cvv = $('#cvv');
 
 //Focus on Name
 $name.focus();
@@ -85,105 +93,171 @@ $('#payment').on('change', (e) => {
 });
 
 //VALIDATION
-//Name
-function isNameValid() {   
-    if($name.val().length > 3) {
-        $name.prev().show();   
-        return true; 
-    } else {
-        $name.prev().hide();       
-        $name.before('<h3 class="error">Name: (please provide your name)</h3>');
-        return false;  
-    }
+function isNameValid() { 
+    return $name.val().length > 3 && (/[a-z \-]+/i).test( $name.val() );  
 }
 
-//Email
-function validateEmail(email) {
+function isMailValid() {
   const emailReg = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
-  return emailReg.test(email);
+  return emailReg.test($mail.val());
 }
 
-function ismailValid() {     
-    const $mail = $('#mail');
-    if(validateEmail($mail.val())) {
-         $mail.prev().show();   
-        return true;
+function isChecked() { 
+    const $checked = $(".activities input:checked");
+    return $checked.length > 0;  
+}
+
+function isPaymentSelected() {
+    const $selected = $('#payment option:selected');
+    return $selected.index() > 0;
+}
+
+//CREDIT CARD
+function isCcNumValid() {
+    return ( /[0-9 \-]+/.test( $ccNum.val() ) && ( $ccNum.val().length > 12 && $ccNum.val().length < 17 ));
+}
+
+function isZipValid() {
+    return ( /[0-9 \-]+/.test( $zip.val() ) && ( $zip.val().length === 5 ));
+}
+
+function isCvvValid() {
+    return ( /[0-9 \-]+/.test( $cvv.val() ) && ( $cvv.val().length === 3 ));
+}
+
+function isCreditcardValid() {
+    return isCcNumValid() && isZipValid() && isCvvValid();
+}
+
+//CAN SUBMIT
+function canSubmit() {
+    return isNameValid() && isMailValid() && isChecked() && isPaymentSelected() && isCreditcardValid();
+}
+
+//NAME
+function nameEvent() {  
+    const nameError = '<h3 class="error" id="name-error">This field is required</h3>'; 
+    if(isNameValid()) {
+        $('#name-error').remove();   
     } else {
-        $mail.prev().hide();       
-        $mail.before('<h3 class="error">Email: (please provide a valid email address)</h3>');
-        return false;          
+        $('#name-error').remove();
+        $name.before(nameError);
     }
 }
 
-//Activites
-function isChecked() {   
-    const $checked = $("input:checked").length;
-    if($checked != 0) {
-        $('.activities legend').show();   
-        return true; 
+//EMAIL
+function mailEvent() {
+    const mailError = '<h3 class="error" id="mail-error">Please provide a valid email address</h3>';    
+    if(isMailValid()) {
+        $('#mail-error').remove();  
     } else {
-        $('.activities legend').before('<h3 class="error" id="legend">Register for Activities (please select at least one activity)</h3>');
-        $('.activities legend').hide();       
-        return false;  
+        $('#mail-error').remove();
+        $mail.before(mailError);
     }
 }
 
-//Payment
-function creditCard() {
-    const $option = $('#payment option:selected').index();
-    if($option < 2) {
-        if($option === 0) {
-            $('#payment').prev().before('<h3 class="error">Please select payment method</h3>');
-        } if($option === 1) {
-            $('#credit-card').prepend('<h3 class="error">Please enter valid credit card information</h3>');
-            const $ccNum = $('#cc-num');
-            const $zip = $('#zip');
-            const $cvv = $('#cvv');
-            // ($ccNum >= 13 || $ccNum <=16) && 
-            if($.isNumeric($ccNum.val())) {
-                $ccNum.prev().show();
-                // return true;
-            } else {
-                $ccNum.prev().hide();
-                $ccNum.before('<label class="error" for="cc-num">Card Number:</label>')
-                // return false;
-            }
-            if($.isNumeric($zip.val) && $zip < 6) {
-                $zip.prev().show();
-                // return true;
-            } else {
-                $zip.prev().hide();
-                $zip.before('<label class="error" for="zip">Zip Code:</label>');
-                // return false;
-            }
-            if($.isNumeric($cvv.val()) && $cvv === 3) {
-                $cvv.prev().show()
-                // return true;;
-            } else {
-                $cvv.prev().hide();
-                $cvv.before('<label class="error" for="cvv">CVV:</label>');
-                // return false;
-            }
-            return false;
-        } 
-        
+//ACTIVITIES
+function checkEvenet() { 
+        const uncheckedError = '<h3 class="error" id="unchecked-error">Please select at least one activity</h3>';
+        if(isChecked()) {
+        $('#unchecked-error').remove();   
     } else {
-        return true;
+        $('#unchecked-error').remove();
+        $('.activities legend').before(uncheckedError);
+    }
+}
+
+//PAYMENT
+function paymentSelect() {
+    const unselectedError = '<h3 class="error" id="unselected-error">Please select payment method</h3>';
+    if(isPaymentSelected()) {
+        $('#unselected-error').remove();
+    } else {
+        $('#unselected-error').remove();
+        $('#payment').prev().before(unselectedError);
+    }
+}
+
+function creditCardEvent() {
+    const creditCardError = '<h3 class="error" id="creditcard-error">Please enter valid credit card information</h3>';
+    if(isCreditcardValid()) {
+        $('#creditcard-error').remove();
+    } else {
+        $('#creditcard-error').remove();
+        $('#credit-card').prepend(creditCardError);
+        switch(isCcNumValid()) {
+            case (true):
+                $ccNum.prev().removeClass('error');
+                break;
+            case (false):
+                $ccNum.prev().addClass('error');
+                break;
+        }
+
+        switch(isZipValid()) {
+            case (true):
+                $zip.prev().removeClass('error');
+                break;
+            case (false):
+                $zip.prev().addClass('error');
+                break;
+        }
+
+        switch(isCvvValid()) {
+            case (true):
+                $cvv.prev().removeClass('error');
+                break;
+            case (false):
+                $cvv.prev().addClass('error');
+                break;
+        }
+
+        // if(isCcNumValid()) {
+        //     $ccNum.prev().removeClass('error');
+        // } else {
+        //     $ccNum.prev().addClass('error');
+        // }
+
+        // if(isZipValid()) {
+        //     $zip.prev().removeClass('error');
+        // } else {
+        //     $zip.prev().addClass('error');
+        // }
+
+        // if(isCvvValid()) {
+        //     $cvv.prev().removeClass('error');
+        // } else {
+        //     $cvv.prev().addClass('error');
+        // }
     }   
 }
 
-//Submit
+//SUBMIT
+function enableSubmitEvent() {
+    $("#submit").prop("disabled", !canSubmit());  
+}
+
 $('#submit').click(() => {
-    $(".error").remove();
-    if(!isNameValid() || !isEmailValid() || !isChecked() || !creditCard()) {
-        $('form').first().prepend('<h2 class="error">Please review the fields in red below.</h2>');
-        isNameValid();
-        ismailValid();
-        isChecked()
-        creditCard();
-        $("body").animate({scrollTop: 150}, "slow");
-        return false;        
-    }        
+    enableSubmitEvent();
+
+    nameEvent();
+    $name.keyup(nameEvent).keyup(enableSubmitEvent);
+
+    mailEvent(); 
+    $mail.keyup(mailEvent).keyup(enableSubmitEvent);
+
+    checkEvenet();
+    $checkbox.change(checkEvenet).change(enableSubmitEvent);
+
+    paymentSelect();
+    $select.change(paymentSelect).change(enableSubmitEvent);
+
+    creditCardEvent();
+    $ccNum.keyup(creditCardEvent).keyup(enableSubmitEvent);
+    $zip.keyup(creditCardEvent).keyup(enableSubmitEvent);
+    $cvv.keyup(creditCardEvent).keyup(enableSubmitEvent);
+
+    $("body").animate({scrollTop: 150}, "slow");      
 });
 
 
